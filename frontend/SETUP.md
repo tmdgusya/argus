@@ -30,14 +30,14 @@ cp ~/projects/argus/frontend/SOUL.md ~/.hermes/profiles/frontend/SOUL.md
 
 ```bash
 sed -i '/^TELEGRAM_BOT_TOKEN=/d' ~/.hermes/profiles/frontend/.env
-echo 'TELEGRAM_BOT_TOKEN=<your-bot-token>' >> ~/.hermes/profiles/frontend/.env
+echo 'TELEGRAM_BOT_TOKEN=<your-telegram-bot-token>' >> ~/.hermes/profiles/frontend/.env
 ```
 
 ## 6. 허용 사용자 설정
 
 ```bash
 sed -i '/^TELEGRAM_ALLOWED_USERS=/d' ~/.hermes/profiles/frontend/.env
-echo 'TELEGRAM_ALLOWED_USERS=<your-telegram-user-id>' >> ~/.hermes/profiles/frontend/.env
+echo 'TELEGRAM_ALLOWED_USERS=@roach_0203' >> ~/.hermes/profiles/frontend/.env
 ```
 
 ## 7. 홈 채널 설정 (선택)

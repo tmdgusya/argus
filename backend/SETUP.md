@@ -40,7 +40,7 @@ cp ~/projects/argus/backend/SOUL.md ~/.hermes/profiles/backend/SOUL.md
 sed -i '/^TELEGRAM_BOT_TOKEN=/d' ~/.hermes/profiles/backend/.env
 
 # 새 봇 토큰 추가 (Step 1에서 복사한 토큰)
-echo 'TELEGRAM_BOT_TOKEN=<your-bot-token>' >> ~/.hermes/profiles/backend/.env
+echo 'TELEGRAM_BOT_TOKEN=<your-telegram-bot-token>' >> ~/.hermes/profiles/backend/.env
 ```
 
 ## 6. 허용 사용자 설정
@@ -50,7 +50,7 @@ echo 'TELEGRAM_BOT_TOKEN=<your-bot-token>' >> ~/.hermes/profiles/backend/.env
 sed -i '/^TELEGRAM_ALLOWED_USERS=/d' ~/.hermes/profiles/backend/.env
 
 # 본인의 Telegram user ID 추가
-echo 'TELEGRAM_ALLOWED_USERS=<your-telegram-user-id>' >> ~/.hermes/profiles/backend/.env
+echo 'TELEGRAM_ALLOWED_USERS=@roach_0203' >> ~/.hermes/profiles/backend/.env
 ```
 
 > Telegram user ID는 @userinfobot 에게 메시지를 보내면 알 수 있습니다.
@@ -102,4 +102,10 @@ backend gateway start
 backend gateway status
 backend gateway logs
 backend gateway stop
+```
+
+## 12. Backend Pairing
+
+```bash
+backend pairing approve telegram <pairing code>
 ```
