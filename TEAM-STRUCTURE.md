@@ -186,7 +186,19 @@ Frontend ──읽기──→ api-spec.md, deployment.md
 ~/projects/argus-dba/          ← dba 브랜치 (dba 에이전트 전용)
 ```
 
-### 4.4 Linear 라벨 체계
+### 4.4 Linear 티켓 규칙
+
+**제목 컨벤션 — `@mention` 방식:**
+```
+@dba argus.db 초기 스키마 설계
+@backend /api/profiles 엔드포인트
+@frontend Profile 선택기 컴포넌트
+```
+- PM이 티켓 만들 때 담당자를 제목에 `@profile`로 명시
+- 각 프로필의 cron은 자기 `@profile`이 언급된 티켓만 처리
+- 직관적 — 강의에서 "mention 구조"로 설명 가능
+
+**라벨 체계 — 자동 라우팅용:**
 
 | 카테고리 | 라벨 | 설명 |
 |----------|------|------|
@@ -195,6 +207,11 @@ Frontend ──읽기──→ api-spec.md, deployment.md
 | | `area:frontend` | Frontend 작업 |
 | 의존성 (필요시) | `dep:blocked` | 선행 작업 대기 중 |
 | | `dep:ready` | 작업 가능 |
+
+**제목 `@mention` + 라벨 병기:**
+- 제목의 `@dba` / `@backend` / `@frontend`는 사람 눈용 (직관적)
+- 라벨의 `area:*`는 cron이 프로그래매틱하게 필터링할 때 사용
+- 둘이 항상 일치해야 함 — PM이 티켓 만들 때 양쪽 다 설정
 
 ### 4.5 Cron Polling
 
@@ -237,41 +254,41 @@ Frontend ──읽기──→ api-spec.md, deployment.md
 
 | # | 제목 | Area | 의존성 |
 |---|------|------|--------|
-| 1 | argus.db 초기 스키마 — profiles, sessions, tool_usage 테이블 | database | - |
-| 2 | argus.db 스키마 — credential_status, gateway_events 테이블 | database | - |
-| 3 | Hermes 프로필 자동 감지 로직 | backend | #1 |
-| 4 | state.db 데이터 수집 → argus.db 적재 | backend | #1, #3 |
-| 5 | FastAPI 프로젝트 초기화 + /api/profiles 엔드포인트 | backend | #3, #4 |
+| 1 | @dba argus.db 초기 스키마 — profiles, sessions, tool_usage 테이블 | database | - |
+| 2 | @dba argus.db 스키마 — credential_status, gateway_events 테이블 | database | - |
+| 3 | @backend Hermes 프로필 자동 감지 로직 | backend | #1 |
+| 4 | @backend state.db 데이터 수집 → argus.db 적재 | backend | #1, #3 |
+| 5 | @backend FastAPI 프로젝트 초기화 + /api/profiles 엔드포인트 | backend | #3, #4 |
 
 ### Phase 2: 핵심 기능 (Backend)
 
 | # | 제목 | Area | 의존성 |
 |---|------|------|--------|
-| 6 | /api/profiles/:id/sessions 엔드포인트 | backend | #5 |
-| 7 | /api/profiles/:id/activity 엔드포인트 (실시간 스트림) | backend | #5 |
-| 8 | /api/profiles/:id/cost 엔드포인트 | backend | #5 |
-| 9 | /api/profiles/:id/tools 엔드포인트 | backend | #5 |
-| 10 | /api/overview 엔드포인트 (크로스 프로필) | backend | #6~#9 |
+| 6 | @backend /api/profiles/:id/sessions 엔드포인트 | backend | #5 |
+| 7 | @backend /api/profiles/:id/activity 엔드포인트 (실시간 스트림) | backend | #5 |
+| 8 | @backend /api/profiles/:id/cost 엔드포인트 | backend | #5 |
+| 9 | @backend /api/profiles/:id/tools 엔드포인트 | backend | #5 |
+| 10 | @backend /api/overview 엔드포인트 (크로스 프로필) | backend | #6~#9 |
 
 ### Phase 3: 대시보드 (Frontend)
 
 | # | 제목 | Area | 의존성 |
 |---|------|------|--------|
-| 11 | 프론트엔드 프로젝트 초기화 + Profile 선택기 | frontend | #5 |
-| 12 | Per-Profile Status 카드 (게이트웨이, 활성 세션, 모델) | frontend | #6 |
-| 13 | Per-Profile Cost 대시보드 (토큰, 비용, 캐시) | frontend | #8 |
-| 14 | Per-Profile Activity 스트림 | frontend | #7 |
-| 15 | Per-Profile Tools 사용 분포 차트 | frontend | #9 |
-| 16 | Cross-Profile Overview (전체 비용, 히트맵) | frontend | #10 |
+| 11 | @frontend 프로젝트 초기화 + Profile 선택기 컴포넌트 | frontend | #5 |
+| 12 | @frontend Per-Profile Status 카드 (게이트웨이, 활성 세션, 모델) | frontend | #6 |
+| 13 | @frontend Per-Profile Cost 대시보드 (토큰, 비용, 캐시) | frontend | #8 |
+| 14 | @frontend Per-Profile Activity 스트림 | frontend | #7 |
+| 15 | @frontend Per-Profile Tools 사용 분포 차트 | frontend | #9 |
+| 16 | @frontend Cross-Profile Overview (전체 비용, 히트맵) | frontend | #10 |
 
 ### Phase 4: 폴리싱 (전체)
 
 | # | 제목 | Area | 의존성 |
 |---|------|------|--------|
-| 17 | credentials_status 엔드포인트 + DBA 검증 테스트 | database | #2, #5 |
-| 18 | 반응형 디자인 적용 | frontend | #11~#16 |
-| 19 | 에러 핸들링 + 로딩 상태 | frontend | #11~#16 |
-| 20 | 최종 통합 테스트 + 버그 수정 | backend, frontend | #17, #18, #19 |
+| 17 | @dba credentials_status 엔드포인트 + 수집 검증 테스트 | database | #2, #5 |
+| 18 | @frontend 반응형 디자인 적용 | frontend | #11~#16 |
+| 19 | @frontend 에러 핸들링 + 로딩 상태 | frontend | #11~#16 |
+| 20 | @backend 최종 통합 테스트 + 버그 수정 | backend | #17, #18, #19 |
 
 ---
 
