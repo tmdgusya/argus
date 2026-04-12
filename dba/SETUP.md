@@ -54,13 +54,14 @@ sed -i '/^DISCORD_BOT_TOKEN=/d' ~/.hermes/profiles/dba/.env
 sed -i '/^DISCORD_ALLOWED_USERS=/d' ~/.hermes/profiles/dba/.env
 ```
 
-## 9. 스킬 설치
+## 9. 번들 스킬 확인
 
 ```bash
-hermes -p dba skills install codex
-hermes -p dba skills install github-pr-workflow
-hermes -p dba skills install linear
+hermes -p dba skills list | grep -E 'codex|github-pr-workflow|linear'
 ```
+
+> 참고: 최신 Hermes에서는 `codex`, `github-pr-workflow`, `linear`가 builtin으로 포함되는 경우가 많습니다.
+> 먼저 `skills list`로 존재 여부를 확인하고, 보이지 않을 때만 별도 설치/배포를 검토하세요.
 
 ## 10. 확인
 

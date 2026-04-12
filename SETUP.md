@@ -179,28 +179,24 @@ hermes -p dba setup
 hermes -p backend model     # 모델 선택 프롬프트
 ```
 
-> **강의 기준**: Codex를 코딩 도구로 사용하므로 각 프로파일에 `codex` 스킬이 필요합니다.
+> **강의 기준**: Codex를 코딩 도구로 사용합니다.
+> 최신 Hermes 설치본에서는 `codex`, `github-pr-workflow`, `linear`가 번들(builtin) 스킬로 함께 노출되므로,
+> 별도 `skills install`보다 먼저 각 프로파일에서 스킬이 보이는지 확인하세요.
 
 ---
 
-## 7. 프로파일별 스킬 설치
+## 7. 프로파일별 번들 스킬 확인
 
 ```bash
-# 코딩 도구 (필수)
-hermes -p backend skills install codex
-hermes -p frontend skills install codex
-hermes -p dba skills install codex
-
-# GitHub PR 워크플로우
-hermes -p backend skills install github-pr-workflow
-hermes -p frontend skills install github-pr-workflow
-hermes -p dba skills install github-pr-workflow
-
-# Linear 연동 (티켓 폴링용)
-hermes -p backend skills install linear
-hermes -p frontend skills install linear
-hermes -p dba skills install linear
+hermes -p backend skills list | grep -E 'codex|github-pr-workflow|linear'
+hermes -p frontend skills list | grep -E 'codex|github-pr-workflow|linear'
+hermes -p dba skills list | grep -E 'codex|github-pr-workflow|linear'
 ```
+
+> 참고:
+> - 현재 Hermes에서는 `codex`, `github-pr-workflow`, `linear`가 builtin으로 제공되는 경우가 많습니다.
+> - `hermes ... skills install codex`는 builtin 확인이 아니라 다른 hub 스킬 설치로 해석될 수 있으므로 권장하지 않습니다.
+> - 커스텀/로컬 스킬이 필요하면 그때만 별도 배포 경로를 안내하세요.
 
 ---
 
@@ -304,7 +300,7 @@ dba gateway        # → argus-dba 봇이 #argus-dba 채널에서 대기
 | 5 | Discord 채널 매핑 | 각 프로파일이 다른 채널에서 응답 |
 | 6 | SOUL.md 작성 완료 | `backend chat`으로 역할 인지 확인 |
 | 7 | 모델 설정 완료 | `hermes -p backend profile show` 확인 |
-| 8 | 스킬 설치 완료 | `hermes -p backend skills list`에 codex 표시 |
+| 8 | 번들 스킬 확인 완료 | `hermes -p backend skills list`에 codex / github-pr-workflow / linear 표시 |
 | 9 | Linear 라벨 생성 | Linear 프로젝트에 area:*, dep:* 라벨 존재 |
 | 10 | `.agent/` 디렉토리 | `context.md`, `conventions.md` 파일 존재 |
 | 11 | Gateway 기동 | 3개 봇이 각자 채널에서 온라인 |
