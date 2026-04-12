@@ -179,24 +179,23 @@ hermes -p dba setup
 hermes -p backend model     # 모델 선택 프롬프트
 ```
 
-> **강의 기준**: Codex를 코딩 도구로 사용합니다.
-> 최신 Hermes 설치본에서는 `codex`, `github-pr-workflow`, `linear`가 번들(builtin) 스킬로 함께 노출되므로,
-> 별도 `skills install`보다 먼저 각 프로파일에서 스킬이 보이는지 확인하세요.
+> **강의 기준**: Codex는 `codex` CLI 스킬이 아니라 Hermes에 연동하는 provider/모델 의미입니다.
+> 따라서 셋업 단계에서는 `openai-codex` 로그인 및 모델 설정만 확인하면 충분합니다.
 
 ---
 
-## 7. 프로파일별 번들 스킬 확인
+## 7. (선택) 워크플로우 스킬 확인
 
 ```bash
-hermes -p backend skills list | grep -E 'codex|github-pr-workflow|linear'
-hermes -p frontend skills list | grep -E 'codex|github-pr-workflow|linear'
-hermes -p dba skills list | grep -E 'codex|github-pr-workflow|linear'
+hermes -p backend skills list | grep -E 'github-pr-workflow|linear'
+hermes -p frontend skills list | grep -E 'github-pr-workflow|linear'
+hermes -p dba skills list | grep -E 'github-pr-workflow|linear'
 ```
 
 > 참고:
-> - 현재 Hermes에서는 `codex`, `github-pr-workflow`, `linear`가 builtin으로 제공되는 경우가 많습니다.
-> - `hermes ... skills install codex`는 builtin 확인이 아니라 다른 hub 스킬 설치로 해석될 수 있으므로 권장하지 않습니다.
-> - 커스텀/로컬 스킬이 필요하면 그때만 별도 배포 경로를 안내하세요.
+> - 이 단계는 setup 필수가 아닙니다.
+> - `github-pr-workflow`, `linear`는 반복 작업을 줄이는 보조 스킬입니다.
+> - E2E 테스트 하네스는 backend 개발 과정에서 구축하는 산출물이지, 사전 셋업 항목이 아닙니다.
 
 ---
 
@@ -300,7 +299,7 @@ dba gateway        # → argus-dba 봇이 #argus-dba 채널에서 대기
 | 5 | Discord 채널 매핑 | 각 프로파일이 다른 채널에서 응답 |
 | 6 | SOUL.md 작성 완료 | `backend chat`으로 역할 인지 확인 |
 | 7 | 모델 설정 완료 | `hermes -p backend profile show` 확인 |
-| 8 | 번들 스킬 확인 완료 | `hermes -p backend skills list`에 codex / github-pr-workflow / linear 표시 |
+| 8 | (선택) workflow skill 확인 | `hermes -p backend skills list`에 github-pr-workflow / linear 표시 |
 | 9 | Linear 라벨 생성 | Linear 프로젝트에 area:*, dep:* 라벨 존재 |
 | 10 | `.agent/` 디렉토리 | `context.md`, `conventions.md` 파일 존재 |
 | 11 | Gateway 기동 | 3개 봇이 각자 채널에서 온라인 |

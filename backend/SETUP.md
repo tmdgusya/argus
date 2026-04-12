@@ -76,17 +76,16 @@ sed -i '/^DISCORD_BOT_TOKEN=/d' ~/.hermes/profiles/backend/.env
 sed -i '/^DISCORD_ALLOWED_USERS=/d' ~/.hermes/profiles/backend/.env
 ```
 
-## 9. 번들 스킬 확인
+## 9. (선택) 워크플로우 스킬 확인
 
 ```bash
-hermes -p backend skills list | grep -E 'codex|github-pr-workflow|linear'
+hermes -p backend skills list | grep -E 'github-pr-workflow|linear'
 ```
 
 > 참고:
-> - 최신 Hermes에서는 `codex`, `github-pr-workflow`, `linear`가 builtin으로 포함되는 경우가 많습니다.
-> - 따라서 먼저 `skills list`로 존재 여부를 확인하고, 보이지 않을 때만 별도 설치/배포를 검토하세요.
-> - `e2e-testing-skill`은 builtin이 아니며, 현재 `hermes skills install e2e-testing-skill`로는 설치되지 않습니다.
->   이 스킬이 꼭 필요하면 강의용 로컬 스킬 번들 또는 별도 배포 경로를 따로 제공해야 합니다.
+> - 이 단계는 setup 필수가 아닙니다.
+> - Codex는 `codex` CLI 스킬이 아니라 Hermes에 연동하는 provider/모델 의미입니다.
+> - E2E 테스트 하네스는 backend 개발 과정에서 구축하는 산출물이지, 셋업 선행조건이 아닙니다.
 
 ## 10. 확인
 

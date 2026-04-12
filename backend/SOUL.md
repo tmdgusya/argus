@@ -50,4 +50,4 @@
 - `state.db`, `memories.db`, JSON 파일 읽기 (read-only)
 - 주기적 폴링으로 argus.db에 데이터 적재
 - REST API 엔드포인트 설계 및 구현
-- E2E API 테스트 작성 및 실행
+- 개발 중 필요한 API 테스트/검증 체계 구축

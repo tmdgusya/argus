@@ -54,14 +54,14 @@ sed -i '/^DISCORD_BOT_TOKEN=/d' ~/.hermes/profiles/dba/.env
 sed -i '/^DISCORD_ALLOWED_USERS=/d' ~/.hermes/profiles/dba/.env
 ```
 
-## 9. 번들 스킬 확인
+## 9. (선택) 워크플로우 스킬 확인
 
 ```bash
-hermes -p dba skills list | grep -E 'codex|github-pr-workflow|linear'
+hermes -p dba skills list | grep -E 'github-pr-workflow|linear'
 ```
 
-> 참고: 최신 Hermes에서는 `codex`, `github-pr-workflow`, `linear`가 builtin으로 포함되는 경우가 많습니다.
-> 먼저 `skills list`로 존재 여부를 확인하고, 보이지 않을 때만 별도 설치/배포를 검토하세요.
+> 참고: 이 단계는 setup 필수가 아닙니다.
+> Codex는 `codex` CLI 스킬이 아니라 Hermes에 연동하는 provider/모델 의미입니다.
 
 ## 10. 확인
 
