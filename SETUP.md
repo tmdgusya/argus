@@ -89,14 +89,19 @@ echo 'TELEGRAM_BOT_TOKEN=<dba-bot-token>' >> ~/.hermes/profiles/dba/.env
 
 - `TELEGRAM_ALLOWED_USERS`
 - `TELEGRAM_HOME_CHANNEL` (선택)
+- `TELEGRAM_REQUIRE_MENTION=true` (공유 그룹 운영 시 권장)
 
 ```bash
 grep -E 'TELEGRAM_ALLOWED_USERS|TELEGRAM_HOME_CHANNEL' ~/.hermes/profiles/backend/.env
 grep -E 'TELEGRAM_ALLOWED_USERS|TELEGRAM_HOME_CHANNEL' ~/.hermes/profiles/frontend/.env
 grep -E 'TELEGRAM_ALLOWED_USERS|TELEGRAM_HOME_CHANNEL' ~/.hermes/profiles/dba/.env
+grep -E 'TELEGRAM_REQUIRE_MENTION' ~/.hermes/profiles/backend/.env
+grep -E 'TELEGRAM_REQUIRE_MENTION' ~/.hermes/profiles/frontend/.env
+grep -E 'TELEGRAM_REQUIRE_MENTION' ~/.hermes/profiles/dba/.env
 ```
 
 > 그룹 홈 채널을 쓸 경우 `TELEGRAM_HOME_CHANNEL`에는 그룹 chat ID를 넣습니다.
+> `TELEGRAM_REQUIRE_MENTION=true`를 켜면 그룹에서 봇 멘션이 있을 때만 응답합니다.
 
 ---
 
@@ -152,6 +157,7 @@ hermes -p backend model     # 모델 선택 프롬프트
 중요:
 - 개인 DM에서 응답하던 기본 봇(예: `@roach_robot`)이 있다고 해서 위 3개 프로파일 봇이 자동으로 그룹에서 동작하는 것은 아닙니다.
 - Telegram 그룹에서는 **실제로 그룹에 들어가 있는 봇 username**과 **현재 띄운 gateway 프로파일**이 일치해야 합니다.
+- 여러 봇을 **같은 그룹**에서 운영할 때 BotFather `setprivacy=Disable`(또는 관리자 승격) 상태면 모든 봇이 같은 메시지를 볼 수 있어, `@A`에 말했는데 `B`가 답하는 현상이 생길 수 있습니다.
 
 권장 순서:
 1. Telegram 그룹을 하나 만든다
@@ -176,9 +182,39 @@ dba gateway        # → @argus_dba_bot 담당
 - 해당 프로파일 gateway가 실제로 떠 있는지 (`backend gateway`, `frontend gateway`, `dba gateway`)
 - 개별 profile `SETUP.md`에서 안내한 Telegram privacy/admin 설정을 적용했는지
 
+봇이 서로 엉켜서 답하면(중요):
+1. BotFather에서 각 봇 `setprivacy`를 `Enable`로 되돌린다
+2. 그룹에서는 반드시 대상 봇만 멘션한다 (`@argus_backend_bot ...`)
+3. 봇을 그룹에서 제거 후 다시 초대한다 (privacy 변경 반영)
+4. 각 프로파일 `.env`의 `TELEGRAM_BOT_TOKEN`이 서로 다른지 재확인한다
+5. 각 프로파일 `.env`에 `TELEGRAM_REQUIRE_MENTION=true`가 설정됐는지 확인한다
+
+> 운영 권장:
+> - 하나의 그룹에서 3봇을 동시에 쓸 때는 `TELEGRAM_REQUIRE_MENTION=true + 명시 멘션`을 기본값으로 사용하세요.
+> - 자연어 자유 대화가 필요하면 프로파일별 그룹을 분리하세요.
+
 ---
 
-## 8. (선택) 워크플로우 스킬 확인
+## 8. 각 봇 /sethome 설정 (필수)
+
+그룹 연결이 확인되면 각 봇에게 같은 그룹에서 `/sethome`을 1회 실행하세요.
+이 설정이 있어야 cron/알림/요약 전송의 기본 대상 채널이 고정됩니다.
+
+실행 예시:
+- `@argus_backend_bot /sethome`
+- `@argus_frontend_bot /sethome`
+- `@argus_dba_bot /sethome`
+
+검증:
+```bash
+grep '^TELEGRAM_HOME_CHANNEL=' ~/.hermes/profiles/backend/.env
+grep '^TELEGRAM_HOME_CHANNEL=' ~/.hermes/profiles/frontend/.env
+grep '^TELEGRAM_HOME_CHANNEL=' ~/.hermes/profiles/dba/.env
+```
+
+---
+
+## 9. (선택) 워크플로우 스킬 확인
 
 ```bash
 hermes -p backend skills list | grep -E 'github-pr-workflow|linear'
@@ -193,7 +229,7 @@ hermes -p dba skills list | grep -E 'github-pr-workflow|linear'
 
 ---
 
-## 9. Linear 라벨 생성
+## 10. Linear 라벨 생성
 
 Argus 프로젝트(ROA 팀)에 티켓 라우팅용 라벨을 생성합니다.
 
@@ -228,7 +264,7 @@ curl -s -X POST https://api.linear.app/graphql \
 
 ---
 
-## 10. Argus 레포 초기화
+## 11. Argus 레포 초기화
 
 ```bash
 cd ~/projects/argus
@@ -248,7 +284,7 @@ git commit -m "chore: argus 프로젝트 초기 구조"
 
 ---
 
-## 11. Cron Polling 설정
+## 12. Cron Polling 설정
 
 각 프로파일에서 Linear를 주기적으로 폴링하도록 cron을 설정합니다.
 
@@ -265,7 +301,7 @@ hermes -p backend cron create \
 
 ---
 
-## 12. 검증 체크리스트
+## 13. 검증 체크리스트
 
 | # | 항목 | 확인 방법 |
 |---|------|----------|
@@ -273,13 +309,15 @@ hermes -p backend cron create \
 | 2 | Profile 3개 생성 | `hermes profile list`에 backend, frontend, dba 표시 |
 | 3 | Bot Token 분리 주입 | 각 `.env`에 다른 `TELEGRAM_BOT_TOKEN` |
 | 4 | Telegram 기본 설정 확인 | 각 프로파일에 `TELEGRAM_ALLOWED_USERS`가 설정됨 |
-| 5 | SOUL.md 작성 완료 | `backend chat`으로 역할 인지 확인 |
-| 6 | 모델 설정 완료 | `hermes -p backend profile show` 확인 |
-| 7 | Telegram 그룹챗 연결 | `@argus_backend_bot`, `@argus_frontend_bot`, `@argus_dba_bot` 멘션 시 각 프로파일이 응답 |
-| 8 | (선택) workflow skill 확인 | `hermes -p backend skills list`에 github-pr-workflow / linear 표시 |
-| 9 | Linear 라벨 생성 | Linear 프로젝트에 area:*, dep:* 라벨 존재 |
-| 10 | `.agent/` 디렉토리 | `context.md`, `conventions.md` 파일 존재 |
-| 11 | Cron 동작 | 티켓 생성 후 자동으로 에이전트가 인식 |
+| 5 | 그룹 멘션 강제 설정 | 각 프로파일 `.env`에 `TELEGRAM_REQUIRE_MENTION=true` |
+| 6 | SOUL.md 작성 완료 | `backend chat`으로 역할 인지 확인 |
+| 7 | 모델 설정 완료 | `hermes -p backend profile show` 확인 |
+| 8 | Telegram 그룹챗 연결 | `@argus_backend_bot`, `@argus_frontend_bot`, `@argus_dba_bot` 멘션 시 각 프로파일이 응답 |
+| 9 | /sethome 설정 | 각 봇에서 `/sethome` 실행 후 `TELEGRAM_HOME_CHANNEL` 반영 |
+| 10 | (선택) workflow skill 확인 | `hermes -p backend skills list`에 github-pr-workflow / linear 표시 |
+| 11 | Linear 라벨 생성 | Linear 프로젝트에 area:*, dep:* 라벨 존재 |
+| 12 | `.agent/` 디렉토리 | `context.md`, `conventions.md` 파일 존재 |
+| 13 | Cron 동작 | 티켓 생성 후 자동으로 에이전트가 인식 |
 
 ---
 
